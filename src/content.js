@@ -1,6 +1,13 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 import { MathMLToLaTeX } from 'mathml-to-latex';
+import OpenAI from 'openai';
+
+
+const client = new OpenAI({
+  apiKey: 'api-key-here',
+  // dangerouslyAllowBrowser: true
+});
 
 (async () => {
   // getting contents of entire page
@@ -25,7 +32,13 @@ import { MathMLToLaTeX } from 'mathml-to-latex';
 
   const $test = $('#output_problem_body');
   if ($test.length > 0) {
-    console.log($test.html());
+    const chatCompletion = await client.chat.completions.create({
+      messages: [{ role: 'user', content: `The following math problem is formatted in LaTeX. Solve it. Your response should contain numerical answers formatted in an array like [Answer 1, Answer 2... etc] at the end. \n\n ${$test}`}],
+      model: 'gpt-4o-mini',
+    });
+  
+    console.log(chatCompletion);
+    // console.log($test.html());
   } else {
     console.log("$test is empty...")
   }
